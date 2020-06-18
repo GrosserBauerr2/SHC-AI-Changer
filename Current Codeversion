@@ -15,44 +15,45 @@ namespace SHC_AI_Changer
         {
             InitializeComponent();
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+
         }
 
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
 
         }
-
+        //Einlesen der Textdateien
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             string Wahl = comboBox1.SelectedItem.ToString();
             Wahl = Wahl.Replace("\n", ",");
             string Dateipfad = PfadBox.Text;
-            string Wahl2 = @"\" + Wahl+ @"\";
+            Dateipfad = Dateipfad + @"\ModFiles";
+            string Wahl2 = @"\" + Wahl + @"\";
             Dateipfad = Dateipfad + Wahl2;
-            string filename = Wahl+".txt";
+            string filename = Wahl + ".txt";
             string Picture = Wahl + ".bmp";
             string cleaned = filename.Replace("\n", "").Replace("\r", "");
             string cleanPic = Picture.Replace("\n", "").Replace("\r", "");
             string cleanPfad = Dateipfad.Replace("\n", "").Replace("\r", "");
             MessageBox.Show(cleaned);
-            
+
             StreamReader nr = new StreamReader(cleanPfad + cleaned);
             pictureBox1.ImageLocation = cleanPfad + cleanPic;
             string x = nr.ReadToEnd();
             string[] y = x.Split('\n');
-            textBox1.Text =(y[0]);
+            textBox1.Text = (y[0]);
             textBox2.Text = (y[1]);
             textBox3.Text = (y[2]);
-            
-        }
 
+        }
+        //Einlesen des Dateipfades über Button bestätigen
         private void button3_Click(object sender, EventArgs e)
         {
             string Dateipfad = PfadBox.Text;
+            Dateipfad = Dateipfad + @"\ModFiles";
             Dateipfad = Dateipfad + @"\BotList.txt";
             MessageBox.Show(Dateipfad);
             StreamReader sr = new StreamReader(Dateipfad);
@@ -61,6 +62,29 @@ namespace SHC_AI_Changer
             foreach (string s in y)
             {
                 comboBox1.Items.Add(s);
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string Dateipfad = PfadBox.Text;
+            string exe = Dateipfad + @"\Stronghold Crusader.exe";
+            string Sound = textBox1.Text;
+            string cleaned = Sound.Replace("\n", "").Replace("\r", "");
+            byte[] ba = Encoding.Default.GetBytes(cleaned);
+            var hexString = BitConverter.ToString(ba);
+            MessageBox.Show(exe);
+            BinaryWriter Schreiben = new BinaryWriter(File.OpenWrite(exe));
+            if (radioButton10.Checked)
+            {
+                int j = 0x000000;
+                int[] Posi = { 0x1A8998, 0x1A81A8, 0x1A806E, 0x1A7F54, 0x1A82B0, 0x1A8398, 0x1A85A0, 0x1A849C, 0x1A86A4, 0x1A87A8, 0x1A8894, 0x1A8B20, 0x1A8C78, 0x1A8D4C, 0x1A8E1C, 0x1A8F08, 0x1A9024, 0x1A9164, 0x1A9250, 0x1A9320, 0x1A9420, 0x1A9530, 0x1A9640, 0x1A98AC, 0x1A9768, 0x1A99D8, 0x1A9AEC, 0x1A9C00, 0x1A9D14, 0x1A9E28, 0x1A9F3C, 0x1AA050, 0x1A7E36 };
+                for (int i = 0; i < Posi.Length; i++)
+                {
+                    j = Posi[i];
+                    Schreiben.BaseStream.Position = j;
+                    Schreiben.BaseStream.Write(ba, 0, 2);
+                }
             }
         }
     }
