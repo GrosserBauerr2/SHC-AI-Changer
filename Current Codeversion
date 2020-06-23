@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 
 namespace SHC_AI_Changer
 {
@@ -87,5 +89,63 @@ namespace SHC_AI_Changer
                 }
             }
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            //string Dateipfad = PfadBox.Text;
+            //Dateipfad = Dateipfad + @"\Stronghold Crusader.exe";
+            //byte[] Bytes1 = File.ReadAllBytes(Dateipfad);
+            
+            string Dateipfad = @"C:\Users\Bauerr\Desktop\Josef\Stronghold & Crusader\Crusader Mod Version";
+            string Dateipfad2 = Dateipfad +@"\Positions.txt";
+            Dateipfad = Dateipfad + @"\Stronghold Crusader.exe";
+            
+            string match = "ph_"; //This is 12 chars in hex of the string to search
+            byte[] Suchbyte = Encoding.ASCII.GetBytes(match);
+            BinaryReader Lesen = new BinaryReader(File.OpenRead(Dateipfad));
+            FileStream fs = new FileStream(Dateipfad2, FileMode.Open, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            byte[] Bytes1 = File.ReadAllBytes(Dateipfad);
+            string Umwandler = "";
+            int Zaehler =1734968;
+            while (Zaehler< 1746200)
+            {
+                if (Bytes1[Zaehler]==Suchbyte[0])
+                {
+                    if(Bytes1[Zaehler+1]==Suchbyte[1])
+                    {
+                        if (Bytes1[Zaehler + 2] == Suchbyte[2])
+                        {
+                            Umwandler = Convert.ToString(Zaehler, 16);
+
+                            sw.WriteLine("0x"+Umwandler);
+                        }
+                    }
+                }
+                //fs.WriteByte(Bytes1[Zaehler]);
+                Zaehler++;
+            }
+            sw.Close();
+            fs.Close();
+            Lesen.Close();
+        }
+            
+        
+
+     
+
+        static void ReadFile(string Dateipfad)
+        {
+            FileStream fs = new FileStream(Dateipfad, FileMode.Open, FileAccess.Read);
+            byte[] Bytes1 = new byte[fs.Length];
+            int bytesread = fs.Read(Bytes1, 0, Bytes1.Length);
+            
+            MessageBox.Show(Encoding.ASCII.GetString(Bytes1, 0, bytesread));
+
+        }
+       
     }
 }
+            
+          
+
