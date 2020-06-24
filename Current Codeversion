@@ -79,73 +79,142 @@ namespace SHC_AI_Changer
             BinaryWriter Schreiben = new BinaryWriter(File.OpenWrite(exe));
             if (radioButton10.Checked)
             {
+
                 int j = 0x000000;
-                int[] Posi = { 0x1A8998, 0x1A81A8, 0x1A806E, 0x1A7F54, 0x1A82B0, 0x1A8398, 0x1A85A0, 0x1A849C, 0x1A86A4, 0x1A87A8, 0x1A8894, 0x1A8B20, 0x1A8C78, 0x1A8D4C, 0x1A8E1C, 0x1A8F08, 0x1A9024, 0x1A9164, 0x1A9250, 0x1A9320, 0x1A9420, 0x1A9530, 0x1A9640, 0x1A98AC, 0x1A9768, 0x1A99D8, 0x1A9AEC, 0x1A9C00, 0x1A9D14, 0x1A9E28, 0x1A9F3C, 0x1AA050, 0x1A7E36 };
-                for (int i = 0; i < Posi.Length; i++)
+                string line;
+                int counter = 0;
+                List<int> list = new List<int>();
+                StreamReader sr = new StreamReader(Dateipfad+ @"\Modfiles\Positions\10\SoundPosition10.txt");
+                while ((line = sr.ReadLine()) != null)
                 {
-                    j = Posi[i];
+                    list.Add(int.Parse(line));
+                    counter++;
+                }
+                int[] Posi10 = list.ToArray();
+
+                for (int i = 0; i < Posi10.Length; i++)
+                {
+                    j = Posi10[i];
                     Schreiben.BaseStream.Position = j;
                     Schreiben.BaseStream.Write(ba, 0, 2);
                 }
-            }
-        }
 
+            }
+            Schreiben.Close();  
+            }
+        
+        // Einlesen der Datei Positionen und abspeichern in Textdateien
         private void button5_Click(object sender, EventArgs e)
         {
-            //string Dateipfad = PfadBox.Text;
-            //Dateipfad = Dateipfad + @"\Stronghold Crusader.exe";
-            //byte[] Bytes1 = File.ReadAllBytes(Dateipfad);
             
             string Dateipfad = @"C:\Users\Bauerr\Desktop\Josef\Stronghold & Crusader\Crusader Mod Version";
-            string Dateipfad2 = Dateipfad +@"\Positions.txt";
-            Dateipfad = Dateipfad + @"\Stronghold Crusader.exe";
-            
-            string match = "ph_"; //This is 12 chars in hex of the string to search
-            byte[] Suchbyte = Encoding.ASCII.GetBytes(match);
-            BinaryReader Lesen = new BinaryReader(File.OpenRead(Dateipfad));
-            FileStream fs = new FileStream(Dateipfad2, FileMode.Open, FileAccess.Write);
-            StreamWriter sw = new StreamWriter(fs);
-            byte[] Bytes1 = File.ReadAllBytes(Dateipfad);
-            string Umwandler = "";
-            int Zaehler =1734968;
-            while (Zaehler< 1746200)
+            string[] Dateipfad2 = new string[16];
+            int j = 0;
+            for(int i=0; i<Dateipfad2.Length; i++)
             {
-                if (Bytes1[Zaehler]==Suchbyte[0])
+                j = i + 1;
+                Dateipfad2[i] = Dateipfad + @"\Modfiles\Positions\" + j + @"\SoundPosition" + j + ".txt";
+            }
+            
+            Dateipfad = Dateipfad + @"\Stronghold Crusader.exe";
+            string[] match = { "rt_", "sn_", "pg_", "wf_", "sa_", "ca_", "su_", "ri_", "fr_", "ph_", "wa_", "em_", "ni_", "sh_", "ma_", "ab_" }; //This is 12 chars in hex of the string to search
+            BinaryReader Lesen = new BinaryReader(File.OpenRead(Dateipfad));
+            int Zaehler = 0;
+            string ErsterSound = "ab_wi";
+            byte[] Bytes2 = File.ReadAllBytes(Dateipfad);
+            byte[] Suchbyte2 = Encoding.ASCII.GetBytes(ErsterSound);
+            int Wandler =0;
+            while (Zaehler < 1740000)
+            {
+                if (Bytes2[Zaehler] == Suchbyte2[0])
                 {
-                    if(Bytes1[Zaehler+1]==Suchbyte[1])
+                    if (Bytes2[Zaehler + 1] == Suchbyte2[1])
                     {
-                        if (Bytes1[Zaehler + 2] == Suchbyte[2])
+                        if (Bytes2[Zaehler + 2] == Suchbyte2[2])
                         {
-                            Umwandler = Convert.ToString(Zaehler, 16);
+                            if (Bytes2[Zaehler + 3] == Suchbyte2[3])
+                            {
+                                Wandler = Convert.ToInt32(Zaehler);
 
-                            sw.WriteLine("0x"+Umwandler);
+                            }
                         }
                     }
                 }
-                //fs.WriteByte(Bytes1[Zaehler]);
                 Zaehler++;
             }
-            sw.Close();
-            fs.Close();
+
+            for (int i=0; i<15;i++)
+            {
+                Zaehler = Wandler;
+                byte[] Suchbyte = Encoding.ASCII.GetBytes(match[i]);
+                FileStream fs = new FileStream(Dateipfad2[i], FileMode.OpenOrCreate, FileAccess.Write);
+                StreamWriter sw = new StreamWriter(fs);
+                byte[] Bytes1 = File.ReadAllBytes(Dateipfad);
+                string Umwandler = "";
+                int Endzahl = Zaehler + 9600;
+                while (Zaehler < Endzahl)
+                {
+                    if (Bytes1[Zaehler] == Suchbyte[0])
+                    {
+                        if (Bytes1[Zaehler + 1] == Suchbyte[1])
+                        {
+                            if (Bytes1[Zaehler + 2] == Suchbyte[2])
+                            {
+                                Umwandler = Convert.ToString(Zaehler);
+
+                                sw.WriteLine(Umwandler);
+                            }
+                        }
+                    }
+                    Zaehler++;
+                }
+                sw.Close();
+                fs.Close();
+            }
+
             Lesen.Close();
         }
-            
-        
-
-     
-
-        static void ReadFile(string Dateipfad)
+        // Zurücksetzen auf Standard-KIs
+        private void button1_Click(object sender, EventArgs e)
         {
-            FileStream fs = new FileStream(Dateipfad, FileMode.Open, FileAccess.Read);
-            byte[] Bytes1 = new byte[fs.Length];
-            int bytesread = fs.Read(Bytes1, 0, Bytes1.Length);
-            
-            MessageBox.Show(Encoding.ASCII.GetString(Bytes1, 0, bytesread));
 
+            string Dateipfad = PfadBox.Text;
+            string exe = Dateipfad + @"\Stronghold Crusader.exe";
+            string[] Sound = { "rt", "sn", "pg", "wf", "sa","ca", "su", "ri", "fr", "ph", "wa", "em", "ni", "sh", "ma", "ab"  };
+
+                MessageBox.Show(exe);
+                BinaryWriter Schreiben = new BinaryWriter(File.OpenWrite(exe));
+
+                byte[] ba10 = Encoding.Default.GetBytes(Sound[9]);
+                var hexString = BitConverter.ToString(ba10);
+                int j = 0x000000;
+                    string line;
+                    int counter = 0;
+                    List<int> list = new List<int>();
+                    StreamReader sr = new StreamReader(Dateipfad + @"\Modfiles\Positions\10\SoundPosition10.txt");
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        list.Add(int.Parse(line));
+                        counter++;
+                    }
+                    int[] Posi10 = list.ToArray();
+
+                    for (int i = 0; i < Posi10.Length; i++)
+                    {
+                        j = Posi10[i];
+                        Schreiben.BaseStream.Position = j;
+                        Schreiben.BaseStream.Write(ba10, 0, 2);
+                    }
+
+ 
+
+            
         }
-       
     }
 }
             
+          
+
+
           
 
